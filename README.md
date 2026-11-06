@@ -1,0 +1,2 @@
+# StrategicMapIcons
+

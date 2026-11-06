@@ -1,0 +1,10 @@
+{
+  "Authors": "Jerry3756",
+  "Version": "00000000-0000-0000-0000-000000000000",
+  "ComponentId": {
+    "Guid": "7d9b4e11-5a28-4c8d-9331-f8e1a6b40291",
+    "Name": "Strategic Map Icons"
+  },
+  "Description": "Adds icons to constructs on the strategic map. Latest version 1.0.0"
+}
+

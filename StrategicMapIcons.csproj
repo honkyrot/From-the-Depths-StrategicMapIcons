@@ -1,0 +1,100 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <!-- Override these paths with -p:GameManagedPath=... and
+         -p:HarmonyAssemblyPath=..., or in a local Directory.Build.props file. -->
+    <GameManagedPath Condition="'$(GameManagedPath)' == ''">$(MSBuildProgramFiles32)\Steam\steamapps\common\From The Depths\From_The_Depths_Data\Managed</GameManagedPath>
+    <HarmonyAssemblyPath Condition="'$(HarmonyAssemblyPath)' == ''">$(MSBuildProjectDirectory)\lib\0Harmony.dll</HarmonyAssemblyPath>
+    <!-- The game loads this DLL with its Unity/Mono runtime. A mod is deployed
+         as a single assembly and must not bring private copies of game DLLs. -->
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>$(HarmonyAssemblyPath)</HintPath>
+    </Reference>
+    <Reference Include="Ai">
+      <HintPath>$(GameManagedPath)\Ai.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(GameManagedPath)\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Common">
+      <HintPath>$(GameManagedPath)\Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Core">
+      <HintPath>$(GameManagedPath)\Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Effects">
+      <HintPath>$(GameManagedPath)\Effects.dll</HintPath>
+    </Reference>
+    <Reference Include="GridCasts">
+      <HintPath>$(GameManagedPath)\GridCasts.dll</HintPath>
+    </Reference>
+    <Reference Include="Ftd">
+      <HintPath>$(GameManagedPath)\Ftd.dll</HintPath>
+    </Reference>
+    <Reference Include="Modding">
+      <HintPath>$(GameManagedPath)\Modding.dll</HintPath>
+    </Reference>
+    <Reference Include="NetInfrastructure">
+      <HintPath>$(GameManagedPath)\NetInfrastructure.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(GameManagedPath)\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PlayerProfiles">
+      <HintPath>$(GameManagedPath)\PlayerProfiles.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Steamworks">
+      <HintPath>$(GameManagedPath)\Steamworks.dll</HintPath>
+    </Reference>
+    <Reference Include="Ui">
+      <HintPath>$(GameManagedPath)\Ui.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(GameManagedPath)\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(GameManagedPath)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(GameManagedPath)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(GameManagedPath)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(GameManagedPath)\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(GameManagedPath)\UnityEngine.UIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <PropertyGroup>
+      <ModDeployFolder Condition="Exists('$(UserProfile)\Documents\From The Depths\Mods\StrategicMapIcons')">$(UserProfile)\Documents\From The Depths\Mods\StrategicMapIcons</ModDeployFolder>
+      <ModDeployFolder Condition="'$(ModDeployFolder)' == '' and Exists('$(UserProfile)\Documents\From The Depths\Mods\BetterStrategicMap')">$(UserProfile)\Documents\From The Depths\Mods\BetterStrategicMap</ModDeployFolder>
+    </PropertyGroup>
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModDeployFolder)" Condition="'$(ModDeployFolder)' != ''" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModDeployFolder)" Condition="'$(ModDeployFolder)' != '' and Exists('$(TargetDir)$(TargetName).pdb')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\mod files\plugin.json" DestinationFolder="$(ModDeployFolder)" Condition="'$(ModDeployFolder)' != '' and Exists('$(MSBuildProjectDirectory)\mod files\plugin.json')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\mod files\header.header" DestinationFolder="$(ModDeployFolder)" Condition="'$(ModDeployFolder)' != '' and Exists('$(MSBuildProjectDirectory)\mod files\header.header')" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

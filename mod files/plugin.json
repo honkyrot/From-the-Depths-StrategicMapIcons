@@ -1,0 +1,10 @@
+{
+  "name": "Strategic Map Icons",
+  "version": "1.0.0",
+  "gameversion": "4.3.4.1",
+  "workshop_id": "",
+  "depends": [],
+  "conflicts": [],
+  "filename": "0Harmony.dll,StrategicMapIcons.dll"
+}
+
