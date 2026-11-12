@@ -30,12 +30,14 @@ namespace StrategicMapIcons
             public bool Enabled { get; set; } = true;
             public bool ShowResourceLabels { get; set; } = true;
             public bool EnableOnZoom { get; set; } = false;
-            public bool SeparateOverlappingIcons { get; set; } = true;
+            public bool SeparateOverlappingIcons { get; set; } = false;
             public Color TeamColor { get; set; } = new Color(0.00f, 1.00f, 1.00f, 1.00f); // cyan blue
             public bool ShowFleetCostTiers { get; set; } = true;
             public bool ScaleByMaterials { get; set; } = true;
             public float ScalingExponent { get; set; } = 2f;
             public float IconScaleMultiplier { get; set; } = 1.0f;
+            public bool OutlineIcons { get; set; } = true;
+            public float OutlineWidth { get; set; } = 2.0f;
             public bool ExpandUiPanels { get; set; } = false;
             public bool ExpandFavouritesBar { get; set; } = false;
         }
@@ -72,6 +74,8 @@ namespace StrategicMapIcons
             SMI_ModSettings.ScaleByMaterials = ScaleByMaterials;
             SMI_ModSettings.ScalingExponent = ScalingExponent;
             SMI_ModSettings.IconScaleMultiplier = IconScaleMultiplier;
+            SMI_ModSettings.OutlineIcons = OutlineIcons;
+            SMI_ModSettings.OutlineWidth = OutlineWidth;
             SMI_ModSettings.ExpandUiPanels = ExpandUiPanels;
             SMI_ModSettings.ExpandFavouritesBar = ExpandFavouritesBar;
         }
@@ -124,6 +128,16 @@ namespace StrategicMapIcons
         {
             get => Internal.IconScaleMultiplier;
             set { Internal.IconScaleMultiplier = value; SMI_ModSettings.IconScaleMultiplier = value; }
+        }
+        public bool OutlineIcons
+        {
+            get => Internal.OutlineIcons;
+            set { Internal.OutlineIcons = value; SMI_ModSettings.OutlineIcons = value; }
+        }
+        public float OutlineWidth
+        {
+            get => Internal.OutlineWidth;
+            set { Internal.OutlineWidth = value; SMI_ModSettings.OutlineWidth = value; }
         }
         public bool ExpandUiPanels
         {
@@ -298,7 +312,7 @@ namespace StrategicMapIcons
             table.AddInterpretter(UIHelper.Bool(
                 _focus,
                 "Separate Overlapping Icons",
-                "Shift nearby fleet icons apart with leader lines so overlapping fleets remain visible and clickable (default: true).",
+                "Shift nearby fleet icons apart with leader lines so overlapping fleets remain visible and clickable (default: false).",
                 I => I.SeparateOverlappingIcons
             ), 0, 1);
 
@@ -360,6 +374,24 @@ namespace StrategicMapIcons
                 I => I.ScaleByMaterials
             ), 1, 1);
 
+            table.AddInterpretter(UIHelper.Bool(
+                _focus,
+                "Icon Black Outline",
+                "Draw a black outline behind vector fleet icons for maximum contrast on bright maps and terrain (default: true).",
+                I => I.OutlineIcons
+            ), 2, 0);
+
+            table.AddInterpretter(UIHelper.FloatSlider(
+                _focus,
+                0.5f,
+                6.0f,
+                0.25f,
+                2.0f,
+                "Outline Width",
+                I => I.OutlineWidth,
+                "Extra width in pixels added to vector lines to create the black outline (default: 2.0)."
+            ), 2, 1);
+
             table.AddInterpretter(UIHelper.FloatSlider(
                 _focus,
                 0.1f,
@@ -369,7 +401,7 @@ namespace StrategicMapIcons
                 "Icon Scale Multiplier",
                 I => I.IconScaleMultiplier,
                 "Global multiplier for the size of all strategic map icons (default: 1.0)."
-            ), 2, 0);
+            ), 3, 0);
 
             table.AddInterpretter(UIHelper.FloatSlider(
                 _focus,
@@ -380,7 +412,7 @@ namespace StrategicMapIcons
                 "Scaling Exponent",
                 I => I.ScalingExponent,
                 "Exponent used to scale fleet icons by their total material cost (default: 2.0)."
-            ), 3, 0);
+            ), 3, 1);
         }
 
     }

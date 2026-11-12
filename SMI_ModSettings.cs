@@ -37,6 +37,8 @@ namespace StrategicMapIcons
         public static bool ScaleByMaterials { get; set; } = true;
         public static float ScalingExponent { get; set; } = 2f;
         public static float IconScaleMultiplier { get; set; } = 1.0f;
+        public static bool OutlineIcons { get; set; } = true;
+        public static float OutlineWidth { get; set; } = 2.0f;
         
         // UI layout adjustments (default off)
         /// <summary>
@@ -80,7 +82,7 @@ namespace StrategicMapIcons
         /// Maximum firepower for a craft with repair tentacles or blueprint spawners to be auto-classified as Support.
         /// Above this threshold, it is treated as a Combat craft.
         /// </summary>
-        public static float SupportMaxFirepower { get; set; } = 25f;
+        public static float SupportMaxFirepower { get; set; } = 8f;
 
         /// <summary>
         /// Firepower threshold at or below which a craft is considered effectively unarmed.
@@ -90,7 +92,7 @@ namespace StrategicMapIcons
         /// <summary>
         /// Maximum firepower for a fast, high-flying, or radar-equipped craft to be auto-classified as a Scout.
         /// </summary>
-        public static float ScoutMaxFirepower { get; set; } = 15f;
+        public static float ScoutMaxFirepower { get; set; } = 8f;
 
         /// <summary>
         /// Minimum antenna height (m) to qualify a lightly armed craft as a Scout.
@@ -111,7 +113,7 @@ namespace StrategicMapIcons
         /// Minimum combined fleet firepower for an entire fleet to be classified as a Combat fleet
         /// rather than taking on a utility role (Harvester/Cargo/Support/Scout).
         /// </summary>
-        public static float CombatFleetMinFirepower { get; set; } = 20f;
+        public static float CombatFleetMinFirepower { get; set; } = 10f;
 
 
         // --- Fleet Cost Tier Thresholds (StrategicMapFleetsPatch) ---

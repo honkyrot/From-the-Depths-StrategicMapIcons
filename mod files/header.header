@@ -5,6 +5,6 @@
     "Guid": "7d9b4e11-5a28-4c8d-9331-f8e1a6b40291",
     "Name": "Strategic Map Icons"
   },
-  "Description": "This mod adds icons over vehicles in the strategic map view.\n\nFeatures a set of icons to use and automatic role selection.\n\n[h3] Notes [/h3]\n\nThe automatic role assigner may misidentify your craft; it's not perfect by any means.\n\nLatest version 1.0.0"
+  "Description": "This mod adds role icons over vehicles in the strategic map view depending on the craft domain and combat roles. It also displays orientation, total material costs, and dynamic fleet size scaling at a glance.\n\nFeatures a set of icons to use and automatic role selection.\n\n[h3] Notes [/h3]\n\nThe automatic role assigner may misidentify your craft; it's not perfect by any means.\n\nLatest version 1.0.1"
 }
 

@@ -166,7 +166,7 @@ namespace StrategicMapIcons
             if (SMI_ModSettings.EasterEggsEnabled)
             {
                 // missile / nuke icon
-                if (f.Name.ToLower().Contains("missile") || f.Name.ToLower().Contains("nuke"))
+                if (f.Name.ToLower().Contains("icbm") || f.Name.ToLower().Contains("nuke"))
                 {
                     return StrategicIconMode.Missile;
                 }

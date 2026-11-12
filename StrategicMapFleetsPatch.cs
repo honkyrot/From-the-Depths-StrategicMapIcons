@@ -411,6 +411,22 @@ namespace StrategicMapIcons
                 float radius = entry.VisualRadiusPx;
                 float lineWidth = GetTierLineWidth(entry.CostTier, entry.IsSelected);
 
+                bool drawOutline = SMI_ModSettings.OutlineIcons && SMI_ModSettings.OutlineWidth > 0.01f;
+                float outlineWidth = lineWidth + SMI_ModSettings.OutlineWidth;
+                Color outlineColor = new(0f, 0f, 0f, 0.95f);
+                float outlineDepthZ = entry.ScreenDepthZ + 0.001f;
+
+                if (drawOutline)
+                {
+                    // draw outline underlay pass
+                    for (int s = 0; s < segments.Length; s++)
+                    {
+                        Vector2 aGui = TransformLocalToGui(segments[s].A, entry.DisplayGuiPos, right2D, fwd2D, radius);
+                        Vector2 bGui = TransformLocalToGui(segments[s].B, entry.DisplayGuiPos, right2D, fwd2D, radius);
+                        DrawGuiLineIn3D(vl, fgCam, aGui, bGui, outlineDepthZ, outlineColor, outlineWidth);
+                    }
+                }
+
                 // draw main pass
                 for (int s = 0; s < segments.Length; s++)
                 {
@@ -420,11 +436,15 @@ namespace StrategicMapIcons
                 }
 
                 // Draw Fleet Cost / Concentration Tier Chevrons & Outer Ring (for Tier 2..4)
-                DrawCostTierIndicators(vl, fgCam, entry, right2D, fwd2D, primaryColor);
+                DrawCostTierIndicators(vl, fgCam, entry, right2D, fwd2D, primaryColor, drawOutline, outlineColor, outlineDepthZ);
 
                 // Draw Selection Brackets if selected
                 if (entry.IsSelected)
                 {
+                    if (drawOutline)
+                    {
+                        DrawSelectionBrackets(vl, fgCam, entry.DisplayGuiPos, radius + 4.5f, outlineDepthZ, outlineColor, 2.2f + SMI_ModSettings.OutlineWidth);
+                    }
                     DrawSelectionBrackets(vl, fgCam, entry.DisplayGuiPos, radius + 4.5f, entry.ScreenDepthZ, new Color(0.45f, 1f, 0.45f, 0.95f), 2.2f);
                 }
             }
@@ -436,7 +456,10 @@ namespace StrategicMapIcons
             FleetScreenEntry entry,
             Vector2 right2D,
             Vector2 fwd2D,
-            Color primaryColor)
+            Color primaryColor,
+            bool drawOutline,
+            Color outlineColor,
+            float outlineDepthZ)
         {
             if (entry.CostTier < 2)
             {
@@ -445,6 +468,8 @@ namespace StrategicMapIcons
 
             float radius = entry.VisualRadiusPx;
             Color tierColor = Color.Lerp(primaryColor, Color.white, 0.35f);
+            const float tierLineWidth = 1.8f;
+            float tierOutlineWidth = tierLineWidth + SMI_ModSettings.OutlineWidth;
 
             if (entry.CostTier >= 5)
             {
@@ -453,6 +478,34 @@ namespace StrategicMapIcons
                 const float centerY = -1.5f;
                 const float outerRadius = 0.46f;
                 const float innerRadius = 0.20f;
+
+                if (drawOutline)
+                {
+                    Vector2 previousOutline = default;
+                    for (int i = 0; i <= pointCount * 2; i++)
+                    {
+                        float angle = -Mathf.PI * 0.5f + i * Mathf.PI / pointCount;
+                        float pointRadius = i % 2 == 0 ? outerRadius : innerRadius;
+
+                        Vector2 point = new(
+                            Mathf.Cos(angle) * pointRadius,
+                            centerY + Mathf.Sin(angle) * pointRadius);
+
+                        if (i > 0)
+                        {
+                            Vector2 guiPrevious = TransformLocalToGui(
+                                previousOutline, entry.DisplayGuiPos, right2D, fwd2D, radius);
+                            Vector2 guiPoint = TransformLocalToGui(
+                                point, entry.DisplayGuiPos, right2D, fwd2D, radius);
+
+                            DrawGuiLineIn3D(
+                                vl, fgCam, guiPrevious, guiPoint,
+                                outlineDepthZ, outlineColor, tierOutlineWidth);
+                        }
+
+                        previousOutline = point;
+                    }
+                }
 
                 Vector2 previous = default;
                 for (int i = 0; i <= pointCount * 2; i++)
@@ -473,7 +526,7 @@ namespace StrategicMapIcons
 
                         DrawGuiLineIn3D(
                             vl, fgCam, guiPrevious, guiPoint,
-                            entry.ScreenDepthZ, tierColor, 1.8f);
+                            entry.ScreenDepthZ, tierColor, tierLineWidth);
                     }
 
                     previous = point;
@@ -484,6 +537,31 @@ namespace StrategicMapIcons
                 int chevronCount = entry.CostTier - 1; // Tier 2 -> 1, Tier 3 -> 2, Tier 4 -> 3
 
                 // Draw aft/bottom rank chevrons.
+                if (drawOutline)
+                {
+                    for (int c = 0; c < chevronCount; c++)
+                    {
+                        float yBase = -1.06f - c * 0.18f;
+                        Vector2 pLeft = new(-0.42f, yBase + 0.10f);
+                        Vector2 pMid = new(0f, yBase - 0.04f);
+                        Vector2 pRight = new(0.42f, yBase + 0.10f);
+
+                        Vector2 guiL = TransformLocalToGui(
+                            pLeft, entry.DisplayGuiPos, right2D, fwd2D, radius);
+                        Vector2 guiM = TransformLocalToGui(
+                            pMid, entry.DisplayGuiPos, right2D, fwd2D, radius);
+                        Vector2 guiR = TransformLocalToGui(
+                            pRight, entry.DisplayGuiPos, right2D, fwd2D, radius);
+
+                        DrawGuiLineIn3D(
+                            vl, fgCam, guiL, guiM,
+                            outlineDepthZ, outlineColor, tierOutlineWidth);
+                        DrawGuiLineIn3D(
+                            vl, fgCam, guiM, guiR,
+                            outlineDepthZ, outlineColor, tierOutlineWidth);
+                    }
+                }
+
                 for (int c = 0; c < chevronCount; c++)
                 {
                     float yBase = -1.06f - c * 0.18f;
@@ -500,10 +578,10 @@ namespace StrategicMapIcons
 
                     DrawGuiLineIn3D(
                         vl, fgCam, guiL, guiM,
-                        entry.ScreenDepthZ, tierColor, 1.8f);
+                        entry.ScreenDepthZ, tierColor, tierLineWidth);
                     DrawGuiLineIn3D(
                         vl, fgCam, guiM, guiR,
-                        entry.ScreenDepthZ, tierColor, 1.8f);
+                        entry.ScreenDepthZ, tierColor, tierLineWidth);
                 }
             }
         }

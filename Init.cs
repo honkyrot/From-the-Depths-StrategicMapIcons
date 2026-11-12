@@ -11,7 +11,7 @@ namespace StrategicMapIcons
     {
         public string name => "StrategicMapIcons";
 
-        public Version version => new(1, 0, 0);
+        public Version version => new(1, 0, 1);
 
         public void OnLoad()
         {
