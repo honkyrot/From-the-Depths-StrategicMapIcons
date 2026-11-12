@@ -28,13 +28,16 @@ namespace StrategicMapIcons
         public class InternalData
         {
             public bool Enabled { get; set; } = true;
-            public bool ShowResourceLabels { get; set; } = false;
+            public bool ShowResourceLabels { get; set; } = true;
             public bool EnableOnZoom { get; set; } = false;
+            public bool SeparateOverlappingIcons { get; set; } = true;
             public Color TeamColor { get; set; } = new Color(0.00f, 1.00f, 1.00f, 1.00f); // cyan blue
             public bool ShowFleetCostTiers { get; set; } = true;
             public bool ScaleByMaterials { get; set; } = true;
             public float ScalingExponent { get; set; } = 2f;
             public float IconScaleMultiplier { get; set; } = 1.0f;
+            public bool ExpandUiPanels { get; set; } = false;
+            public bool ExpandFavouritesBar { get; set; } = false;
         }
 
         public override ModuleType ModuleType => ModuleType.Options;
@@ -63,7 +66,14 @@ namespace StrategicMapIcons
             SMI_ModSettings.Enabled = Enabled;
             SMI_ModSettings.ShowResourceLabels = ShowResourceLabels;
             SMI_ModSettings.EnableOnZoom = EnableOnZoom;
+            SMI_ModSettings.SeparateOverlappingIcons = SeparateOverlappingIcons;
             SMI_ModSettings.TeamColor = TeamColor;
+            SMI_ModSettings.ShowFleetCostTiers = ShowFleetCostTiers;
+            SMI_ModSettings.ScaleByMaterials = ScaleByMaterials;
+            SMI_ModSettings.ScalingExponent = ScalingExponent;
+            SMI_ModSettings.IconScaleMultiplier = IconScaleMultiplier;
+            SMI_ModSettings.ExpandUiPanels = ExpandUiPanels;
+            SMI_ModSettings.ExpandFavouritesBar = ExpandFavouritesBar;
         }
 
         #region Properties
@@ -83,6 +93,11 @@ namespace StrategicMapIcons
         {
             get => Internal.EnableOnZoom;
             set { Internal.EnableOnZoom = value; SMI_ModSettings.EnableOnZoom = value; }
+        }
+        public bool SeparateOverlappingIcons
+        {
+            get => Internal.SeparateOverlappingIcons;
+            set { Internal.SeparateOverlappingIcons = value; SMI_ModSettings.SeparateOverlappingIcons = value; }
         }
         public Color TeamColor
         {
@@ -109,6 +124,16 @@ namespace StrategicMapIcons
         {
             get => Internal.IconScaleMultiplier;
             set { Internal.IconScaleMultiplier = value; SMI_ModSettings.IconScaleMultiplier = value; }
+        }
+        public bool ExpandUiPanels
+        {
+            get => Internal.ExpandUiPanels;
+            set { Internal.ExpandUiPanels = value; SMI_ModSettings.ExpandUiPanels = value; }
+        }
+        public bool ExpandFavouritesBar
+        {
+            get => Internal.ExpandFavouritesBar;
+            set { Internal.ExpandFavouritesBar = value; SMI_ModSettings.ExpandFavouritesBar = value; }
         }
         #endregion
     }
@@ -270,6 +295,12 @@ namespace StrategicMapIcons
                 I => I.Enabled
             ), 0, 0);
 
+            table.AddInterpretter(UIHelper.Bool(
+                _focus,
+                "Separate Overlapping Icons",
+                "Shift nearby fleet icons apart with leader lines so overlapping fleets remain visible and clickable (default: true).",
+                I => I.SeparateOverlappingIcons
+            ), 0, 1);
 
             table.AddInterpretter(UIHelper.Bool(
                 _focus,
@@ -277,6 +308,20 @@ namespace StrategicMapIcons
                 "Allow the Strategic Map icons to be drawn when zoomed in past the strategic map view (default: false).",
                 I => I.EnableOnZoom
             ), 1, 0);
+
+            table.AddInterpretter(UIHelper.Bool(
+                _focus,
+                "Expand Fleet & Force Panels",
+                "Force resize top-left fleet and force list panels on the Strategic & Tactical Maps to fit long craft names without text wrapping (default: false).",
+                I => I.ExpandUiPanels
+            ), 1, 1);
+
+            table.AddInterpretter(UIHelper.Bool(
+                _focus,
+                "Expand Build / Favourites Bar",
+                "Dynamically widen the top-right Build / Favourites menu when opened so blueprint names and costs are not clipped (default: false).",
+                I => I.ExpandFavouritesBar
+            ), 2, 0);
         }
 
         private void VisualSection()
@@ -297,7 +342,7 @@ namespace StrategicMapIcons
             table.AddInterpretter(UIHelper.Bool(
                 _focus,
                 "Show Resource & Supply Labels",
-                "Display non-critical creator/cargo role and status text overlays on the map. Critical 'low mats' / 'no mats' warnings are always shown (default: false).",
+                "Display non-critical creator/cargo role and status text overlays on the map. Critical 'low mats' / 'no mats' warnings are always shown (default: true).",
                 I => I.ShowResourceLabels
             ), 0, 1);
 

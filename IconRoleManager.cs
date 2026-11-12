@@ -248,16 +248,31 @@ namespace StrategicMapIcons
                 return flagshipAssigned;
             }
 
-            // Check if any other force has an explicit override
+            // Check if any other force has an explicit override, preferring the highest firepower override
+            Force? bestExplicitForce = null;
+            float bestExplicitFirepower = -1f;
             for (int i = 0; i < fleet.forces.Count; i++)
             {
                 Force f = fleet.forces[i];
                 StrategicIconMode mode = GetForceIconMode(f);
                 if (mode != StrategicIconMode.Auto)
                 {
-                    representativeForce = f;
-                    return mode;
+                    float fp = f.CSI?.TotalFirepower ?? 0f;
+                    if (bestExplicitForce == null || fp > bestExplicitFirepower)
+                    {
+                        bestExplicitForce = f;
+                        bestExplicitFirepower = fp;
+                    }
                 }
+            }
+
+            // If an explicit override exists on an escort, only use it if the fleet isn't a major combat fleet
+            // led by a different flagship with significantly higher firepower.
+            float flagshipFirepower = representativeForce.CSI?.TotalFirepower ?? 0f;
+            if (bestExplicitForce != null && (flagshipFirepower < SMI_ModSettings.CombatFleetMinFirepower || bestExplicitFirepower >= flagshipFirepower * 0.5f))
+            {
+                representativeForce = bestExplicitForce;
+                return GetForceIconMode(bestExplicitForce);
             }
 
             // Auto-classify across the fleet:

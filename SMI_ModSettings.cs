@@ -19,7 +19,7 @@ namespace StrategicMapIcons
         /// Controls whether non-critical resource/supply text overlays (creator, cargo, -filling up...-, etc.) are drawn on the map.
         /// Critical "low mats" / "no mats" warnings are always kept visible.
         /// </summary>
-        public static bool ShowResourceLabels { get; set; } = false;
+        public static bool ShowResourceLabels { get; set; } = true;
         /// <summary>
         /// Enables drawing when zoomed in past the strategic map view.
         /// </summary>
@@ -32,11 +32,23 @@ namespace StrategicMapIcons
         public static float MinTacticalIconWorldSpanMeters { get; set; } = 24f;
 
         // visuals
+        public static bool SeparateOverlappingIcons { get; set; } = true;
         public static bool ShowFleetCostTiers { get; set; } = true;
         public static bool ScaleByMaterials { get; set; } = true;
         public static float ScalingExponent { get; set; } = 2f;
         public static float IconScaleMultiplier { get; set; } = 1.0f;
         
+        // UI layout adjustments (default off)
+        /// <summary>
+        /// Dynamically resizes the top-left fleet and force list panels on the Strategic &amp; Tactical Maps to fit long craft names.
+        /// </summary>
+        public static bool ExpandUiPanels { get; set; } = false;
+
+        /// <summary>
+        /// Dynamically widens the top-right Build / Favourites bar when open.
+        /// </summary>
+        public static bool ExpandFavouritesBar { get; set; } = false;
+
         // other
 
         public static bool EasterEggsEnabled { get; set; } = true;

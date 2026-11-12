@@ -54,6 +54,7 @@ namespace StrategicMapIcons
             AccessTools.FieldRefAccess<StrategicMapControlActiveGUI, List<string>>("_toolTipStrings");
 
         private static readonly List<FleetScreenEntry> _frameEntries = new List<FleetScreenEntry>(128);
+        private static readonly List<FleetScreenEntry> _entryPool = new List<FleetScreenEntry>(128);
         private static int _lastComputedFrame = -1;
 
         private static GUIStyle? _badgeStyle;
@@ -109,6 +110,10 @@ namespace StrategicMapIcons
                 return;
             }
             _lastComputedFrame = frame;
+            for (int e = 0; e < _frameEntries.Count; e++)
+            {
+                _entryPool.Add(_frameEntries[e]);
+            }
             _frameEntries.Clear();
 
             if (FleetManager.Instance == null || FactionSpecifications.i == null)
@@ -193,30 +198,44 @@ namespace StrategicMapIcons
                 }
 
                 Vector2 trueGui = new Vector2(guiPt.x, guiPt.y);
-                _frameEntries.Add(new FleetScreenEntry
+                FleetScreenEntry entry;
+                if (_entryPool.Count > 0)
                 {
-                    FleetIndex = ii,
-                    Fleet = F,
-                    Faction = faction,
-                    ResolvedMode = resolvedMode,
-                    RepresentativeForce = repForce,
-                    TrueGuiPos = trueGui,
-                    DisplayGuiPos = trueGui,
-                    ScreenDepthZ = sp0.z,
-                    ForwardScreenDir = fwdScreenDir,
-                    MaterialCost = matCost,
-                    CostTier = costTier,
-                    VisualRadiusPx = baseRadiusPx,
-                    AnchorWeight = anchorWeight,
-                    IsSelected = isSelected,
-                    IsPlayerTeam = isPlayerTeam,
-                    IsStationary = isStationary,
-                    IsDeadBlueprint = F.IsDeadBlueprintFleet(),
-                    TooltipId = toolTipStrings[ii]
-                });
+                    int lastIdx = _entryPool.Count - 1;
+                    entry = _entryPool[lastIdx];
+                    _entryPool.RemoveAt(lastIdx);
+                }
+                else
+                {
+                    entry = new FleetScreenEntry();
+                }
+
+                entry.FleetIndex = ii;
+                entry.Fleet = F;
+                entry.Faction = faction;
+                entry.ResolvedMode = resolvedMode;
+                entry.RepresentativeForce = repForce;
+                entry.TrueGuiPos = trueGui;
+                entry.DisplayGuiPos = trueGui;
+                entry.ScreenDepthZ = sp0.z;
+                entry.ForwardScreenDir = fwdScreenDir;
+                entry.MaterialCost = matCost;
+                entry.CostTier = costTier;
+                entry.VisualRadiusPx = baseRadiusPx;
+                entry.AnchorWeight = anchorWeight;
+                entry.IsSelected = isSelected;
+                entry.IsPlayerTeam = isPlayerTeam;
+                entry.IsStationary = isStationary;
+                entry.IsDeadBlueprint = F.IsDeadBlueprintFleet();
+                entry.TooltipId = toolTipStrings[ii];
+
+                _frameEntries.Add(entry);
             }
 
-            ResolveScreenOverlaps(_frameEntries);
+            if (SMI_ModSettings.SeparateOverlappingIcons)
+            {
+                ResolveScreenOverlaps(_frameEntries);
+            }
         }
 
         private static int ComputeCostTier(float matCost, bool isHq)
@@ -651,22 +670,22 @@ namespace StrategicMapIcons
                         {
                             clicked = GUI.Button(rect, new GUIContent("", entry.TooltipId), _emptyButtonStyle!);
                         }
+                    }
 
-                        // Draw compact material/count badge below medium/heavy/multi-ship fleets so player sees force concentration
-                        int forceCount = F.forces.Count;
-                        if (entry.CostTier >= 2 || forceCount > 1)
+                    // Draw compact material/count badge below medium/heavy/multi-ship fleets so player sees force concentration
+                    int forceCount = F.forces.Count;
+                    if (entry.CostTier >= 2 || forceCount > 1)
+                    {
+                        string badgeText = FormatFleetBadge(entry.MaterialCost, forceCount, entry.CostTier >= 2);
+                        if (!string.IsNullOrEmpty(badgeText))
                         {
-                            string badgeText = FormatFleetBadge(entry.MaterialCost, forceCount, entry.CostTier >= 2);
-                            if (!string.IsNullOrEmpty(badgeText))
-                            {
-                                Rect badgeRect = new Rect(entry.DisplayGuiPos.x - 42f, entry.DisplayGuiPos.y + entry.VisualRadiusPx + 1f, 84f, 15f);
-                                Color prevColor = GUI.color;
-                                GUI.color = new Color(0f, 0f, 0f, 0.85f);
-                                GUI.Label(new Rect(badgeRect.x + 1f, badgeRect.y + 1f, badgeRect.width, badgeRect.height), badgeText, _badgeStyle!);
-                                GUI.color = GetFleetPrimaryColor(entry);
-                                GUI.Label(badgeRect, badgeText, _badgeStyle!);
-                                GUI.color = prevColor;
-                            }
+                            Rect badgeRect = new Rect(entry.DisplayGuiPos.x - 42f, entry.DisplayGuiPos.y + entry.VisualRadiusPx + 1f, 84f, 15f);
+                            Color prevColor = GUI.color;
+                            GUI.color = new Color(0f, 0f, 0f, 0.85f);
+                            GUI.Label(new Rect(badgeRect.x + 1f, badgeRect.y + 1f, badgeRect.width, badgeRect.height), badgeText, _badgeStyle!);
+                            GUI.color = GetFleetPrimaryColor(entry);
+                            GUI.Label(badgeRect, badgeText, _badgeStyle!);
+                            GUI.color = prevColor;
                         }
                     }
 

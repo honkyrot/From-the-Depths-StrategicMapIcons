@@ -139,6 +139,12 @@ namespace StrategicMapIcons
         /// </summary>
         public static Rect GetStrategicMapTopLeftRect(IConsoleStyles styles, RectPosition position, float baseWidth, float vanillaHeight)
         {
+            if (!SMI_ModSettings.ExpandUiPanels)
+            {
+                LastStrategicPanelOccupiedHeight = 0f;
+                return styles.GetRect(position, baseWidth, vanillaHeight);
+            }
+
             SO_ForceList? s = LazyLoader.ForceList.Get();
             EnsureSingleLineForceListStyles(s);
 
@@ -246,6 +252,11 @@ namespace StrategicMapIcons
         /// </summary>
         public static Rect GetTacticalTopLeftRect(IConsoleStyles styles, RectPosition position, float baseWidth, float vanillaHeight)
         {
+            if (!SMI_ModSettings.ExpandUiPanels)
+            {
+                return styles.GetRect(position, baseWidth, vanillaHeight);
+            }
+
             SO_ForceList? s = LazyLoader.ForceList.Get();
             EnsureSingleLineForceListStyles(s);
 
@@ -359,7 +370,7 @@ namespace StrategicMapIcons
         [HarmonyPostfix]
         public static void Postfix_CalcButtonSize(ForceDisplayPanel __instance)
         {
-            if (__instance != null)
+            if (__instance != null && SMI_ModSettings.ExpandUiPanels)
             {
                 StrategicMapUiPatch.EnsureSingleLineForceListStyles(_sRef(__instance));
             }
@@ -432,7 +443,9 @@ namespace StrategicMapIcons
 
         public static void DisplayInfoWithDynamicOffset(float borderWidth, float extraDown)
         {
-            float dynamicExtraDown = Mathf.Max(extraDown, StrategicMapUiPatch.LastStrategicPanelOccupiedHeight + 8f);
+            float dynamicExtraDown = SMI_ModSettings.ExpandUiPanels
+                ? Mathf.Max(extraDown, StrategicMapUiPatch.LastStrategicPanelOccupiedHeight + 8f)
+                : extraDown;
             InfoStore.DisplayInfo(borderWidth, dynamicExtraDown);
         }
     }
@@ -509,7 +522,7 @@ namespace StrategicMapIcons
         [HarmonyPostfix]
         public static void Postfix_GetWidth(FavouritesBarGui __instance, ref float __result)
         {
-            if (IsOpen(__instance))
+            if (SMI_ModSettings.ExpandFavouritesBar && IsOpen(__instance))
             {
                 __result = ComputeOpenWidth(__instance, __result);
             }
@@ -519,7 +532,7 @@ namespace StrategicMapIcons
         [HarmonyPostfix]
         public static void Postfix_GetRect(FavouritesBarGui __instance, ref Rect __result)
         {
-            if (IsOpen(__instance))
+            if (SMI_ModSettings.ExpandFavouritesBar && IsOpen(__instance))
             {
                 float openWidth = ComputeOpenWidth(__instance, __result.width);
                 Rect topRight = ConsoleStyles.Instance.GetRect(RectPosition.TopRight, openWidth, __result.height);

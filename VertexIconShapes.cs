@@ -166,7 +166,7 @@ namespace StrategicMapIcons
                 // Custom
                 case StrategicIconMode.Missile:
                     rotateWithHeading = true;
-                    return BuildMissileShape();
+                    return MissileSegments;
                 // Default/Auto
                 default:
                     CombatDomain domain = GetCombatDomain(representativeForce);

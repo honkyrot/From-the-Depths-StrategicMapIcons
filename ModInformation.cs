@@ -95,9 +95,17 @@ namespace StrategicMapIcons
         {
             ModProblems.AllModProblems.Remove(initModPath);
             ModProblems.AddModProblem(initModName, initModPath, initDescription, initIsError);
-            foreach (IGui_GuiSystem activeGui in GuiDisplayer.GetSingleton().ActiveGuis)
+            var singleton = GuiDisplayer.GetSingleton();
+            if (singleton?.ActiveGuis != null)
             {
-                activeGui.OnActivateGui();
+                foreach (IGui_GuiSystem activeGui in singleton.ActiveGuis)
+                {
+                    try
+                    {
+                        activeGui?.OnActivateGui();
+                    }
+                    catch { }
+                }
             }
         }
 
