@@ -49,6 +49,7 @@ namespace StrategicMapIcons
         public static readonly LineSegment2D[] CargoSegments = BuildCargoShape();
         public static readonly LineSegment2D[] ScoutSegments = BuildScoutShape();
         public static readonly LineSegment2D[] SupportSegments = BuildSupportShape();
+        public static readonly LineSegment2D[] RadarSegments = BuildRadarShape();
 
         // Simple geometric shape segment arrays
         public static readonly LineSegment2D[] ShapeSquareSegments = BuildShapeSquare();
@@ -127,11 +128,14 @@ namespace StrategicMapIcons
                     rotateWithHeading = true;
                     return CombatLandSegments;
                 case StrategicIconMode.Orbital_Combat:
-                    rotateWithHeading = false;
+                    rotateWithHeading = true;
                     return CombatOrbitalSegments;
                 case StrategicIconMode.Water_Combat:
                     rotateWithHeading = true;
                     return CombatShipSegments;
+                case StrategicIconMode.Radar:
+                    rotateWithHeading = false;
+                    return RadarSegments;
                 // Geometric Shapes
                 case StrategicIconMode.Shapes_Square:
                     rotateWithHeading = false;
@@ -140,7 +144,7 @@ namespace StrategicMapIcons
                     rotateWithHeading = false;
                     return ShapeCircleSegments;
                 case StrategicIconMode.Shapes_Triangle:
-                    rotateWithHeading = true;
+                    rotateWithHeading = false;
                     return ShapeTriangleSegments;
                 case StrategicIconMode.Shapes_Pentagon:
                     rotateWithHeading = false;
@@ -161,7 +165,7 @@ namespace StrategicMapIcons
                     rotateWithHeading = false;
                     return ShapeDiamondSegments;
                 case StrategicIconMode.Shapes_Chevron:
-                    rotateWithHeading = true;
+                    rotateWithHeading = false;
                     return ShapeChevronSegments;
                 // Custom
                 case StrategicIconMode.Missile:
@@ -207,6 +211,7 @@ namespace StrategicMapIcons
                 StrategicIconMode.Cargo => CargoSegments,
                 StrategicIconMode.Scout => ScoutSegments,
                 StrategicIconMode.Support => SupportSegments,
+                StrategicIconMode.Radar => RadarSegments,
                 StrategicIconMode.Shapes_Square => ShapeSquareSegments,
                 StrategicIconMode.Shapes_Circle => ShapeCircleSegments,
                 StrategicIconMode.Shapes_Triangle => ShapeTriangleSegments,
@@ -552,6 +557,43 @@ namespace StrategicMapIcons
             return list.ToArray();
         }
 
+        private static LineSegment2D[] BuildRadarShape()
+        {
+            var list = new List<LineSegment2D>();
+            // Polyline 1
+            AddPolyline(list,
+                new Vector2(-0.25f, 0.85f),
+                new Vector2(0.90f, 0.85f),
+                new Vector2(0.90f, -0.25f));
+            // Polyline 2
+            AddPolyline(list,
+                new Vector2(-0.25f, 1.00f),
+                new Vector2(-0.20f, 0.50f),
+                new Vector2(0.10f, 0.10f),
+                new Vector2(0.50f, -0.15f),
+                new Vector2(1.00f, -0.25f),
+                new Vector2(0.50f, -0.25f),
+                new Vector2(-0.05f, -0.05f),
+                new Vector2(-0.30f, 0.50f),
+                new Vector2(-0.25f, 1.00f));
+            // Polygon 3
+            AddPolygon(list,
+                new Vector2(-0.15f, 0.15f),
+                new Vector2(-0.60f, -0.95f),
+                new Vector2(-0.20f, -0.95f),
+                new Vector2(0.15f, -0.10f),
+                new Vector2(-0.05f, -0.05f));
+            // Polygon 5
+            AddPolygon(list,
+                new Vector2(-0.80f, -0.95f),
+                new Vector2(0.80f, -0.95f),
+                new Vector2(0.80f, -1.00f),
+                new Vector2(-0.80f, -1.00f));
+            return list.ToArray();
+        }
+
+        //
+
         private static LineSegment2D[] BuildToggleMenuButtonShape()
         {
             var list = new List<LineSegment2D>();
@@ -567,6 +609,8 @@ namespace StrategicMapIcons
             list.Add(new LineSegment2D(-1.00f, 0.50f, 1.00f, -0.50f));
             return list.ToArray();
         }
+
+        //
 
         private static LineSegment2D[] BuildShapeSquare()
         {

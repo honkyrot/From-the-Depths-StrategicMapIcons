@@ -24,6 +24,7 @@ namespace StrategicMapIcons
         Scout = 8,         // Radar / satellite / recon vertex icon
         Support = 9,        // Repair / tender / spawner vertex icon
         Fortress = 10,       // Bastion fortress vertex icon (for large stationary bases)
+        Radar = 11,          // Radar / satellite / recon vertex icon (for radar/satellite/scout units)
         Shapes_Square = 101,       // standard shape
         Shapes_Circle = 102,       // standard shape
         Shapes_Triangle = 103,    // standard shape
@@ -250,17 +251,26 @@ namespace StrategicMapIcons
                 return StrategicIconMode.Support;
             }
 
-            // 4. Scout / Radar / Satellite (antenna or high altitude with minimal weapons)
+            // 4. Radar (stationary / fortress-speed craft with antenna and minimal weapons)
+            bool hasAntenna = csi.Antennas > 0f || csi.AntennaHeight > SMI_ModSettings.ScoutMinAntennaHeight;
+            bool isStationary = csi.TopSpeed <= SMI_ModSettings.FortressMaxTopSpeed ||
+                                f.GetConstructableType() == enumConstructableTypes.fortress ||
+                                f.GetConstructableType() == enumConstructableTypes.structure;
+            if (csi.TotalFirepower < SMI_ModSettings.ScoutMaxFirepower && hasAntenna && isStationary)
+            {
+                return StrategicIconMode.Radar;
+            }
+
+            // 5. Scout / Satellite (mobile antenna or high altitude / fast craft with minimal weapons)
             if (csi.TotalFirepower < SMI_ModSettings.ScoutMaxFirepower &&
-                (csi.Antennas > 0f ||
-                 csi.AntennaHeight > SMI_ModSettings.ScoutMinAntennaHeight ||
+                (hasAntenna ||
                  csi.MaxAltitude > SMI_ModSettings.ScoutMinAltitude ||
                  csi.TopSpeed > SMI_ModSettings.ScoutMinTopSpeed))
             {
                 return StrategicIconMode.Scout;
             }
 
-            // 5. Support if unarmed with repair/spawner
+            // 6. Support if unarmed with repair/spawner
             if (csi.TotalFirepower <= SMI_ModSettings.UnarmedMaxFirepower && (csi.RepairOther > 0f || csi.BlueprintSpawner > 0f))
             {
                 return StrategicIconMode.Support;
@@ -341,6 +351,7 @@ namespace StrategicMapIcons
             bool hasHarvester = false;
             bool hasCargo = false;
             bool hasSupport = false;
+            bool hasRadar = false;
             bool hasScout = false;
             Force? strongestCombatForce = null;
             float maxForceFirepower = -1f;
@@ -364,6 +375,7 @@ namespace StrategicMapIcons
                     case StrategicIconMode.Harvester: hasHarvester = true; break;
                     case StrategicIconMode.Cargo: hasCargo = true; break;
                     case StrategicIconMode.Support: hasSupport = true; break;
+                    case StrategicIconMode.Radar: hasRadar = true; break;
                     case StrategicIconMode.Scout: hasScout = true; break;
                 }
             }
@@ -379,6 +391,7 @@ namespace StrategicMapIcons
             if (hasHarvester) return StrategicIconMode.Harvester;
             if (hasCargo) return StrategicIconMode.Cargo;
             if (hasSupport) return StrategicIconMode.Support;
+            if (hasRadar) return StrategicIconMode.Radar;
             if (hasScout) return StrategicIconMode.Scout;
 
             return ClassifyForceAuto(representativeForce);

@@ -31,6 +31,7 @@ namespace StrategicMapIcons
             StrategicIconMode.Harvester,
             StrategicIconMode.Cargo,
             StrategicIconMode.Scout,
+            StrategicIconMode.Radar,
             StrategicIconMode.Support
         };
 
@@ -300,29 +301,31 @@ namespace StrategicMapIcons
                 case StrategicIconMode.Cargo:
                     return "Strategic Map Icon: <color=#80ff80>Cargo / Logistics Transport</color>\nFor supply line transports.";
                 case StrategicIconMode.Scout:
-                    return "Strategic Map Icon: <color=#80ff80>Scout / Radar / Satellite</color>\nFor reconnaissance and surveillance purposes, or balloons.";
+                    return "Strategic Map Icon: <color=#80ff80>Scout / Satellite</color>\nFor reconnaissance and surveillance purposes, or balloons.";
+                case StrategicIconMode.Radar:
+                    return "Strategic Map Icon: <color=#80ff80>Radar</color>\nFor radar or strategic map radar units.";
                 case StrategicIconMode.Support:
-                    return "Strategic Map Icon: <color=#80ff80>Support / Repair</color>\nStar shape.";
+                    return "Strategic Map Icon: <color=#80ff80>Support / Repair</color>";
                 case StrategicIconMode.Shapes_Circle:
-                    return "Simple Shape Icon: <color=#80ff80>Circle</color>\nCircle.";
+                    return "Simple Shape Icon: <color=#80ff80>Circle</color>";
                 case StrategicIconMode.Shapes_Triangle:
-                    return "Simple Shape Icon: <color=#80ff80>Triangle (Directional)</color>\nTriangle.";
+                    return "Simple Shape Icon: <color=#80ff80>Triangle</color>";
                 case StrategicIconMode.Shapes_Square:
-                    return "Simple Shape Icon: <color=#80ff80>Square</color>\nSquare.";
+                    return "Simple Shape Icon: <color=#80ff80>Square</color>";
                 case StrategicIconMode.Shapes_Diamond:
-                    return "Simple Shape Icon: <color=#80ff80>Diamond</color>\n45 deg Square.";
+                    return "Simple Shape Icon: <color=#80ff80>Diamond</color>";
                 case StrategicIconMode.Shapes_Pentagon:
-                    return "Simple Shape Icon: <color=#80ff80>Pentagon</color>\nPentagon.";
+                    return "Simple Shape Icon: <color=#80ff80>Pentagon</color>";
                 case StrategicIconMode.Shapes_Hexagon:
-                    return "Simple Shape Icon: <color=#80ff80>Hexagon</color>\nHexagon.";
+                    return "Simple Shape Icon: <color=#80ff80>Hexagon</color>";
                 case StrategicIconMode.Shapes_Octagon:
-                    return "Simple Shape Icon: <color=#80ff80>Octagon</color>\nOctagon.";
+                    return "Simple Shape Icon: <color=#80ff80>Octagon</color>";
                 case StrategicIconMode.Shapes_Cross:
-                    return "Simple Shape Icon: <color=#80ff80>Cross / Plus</color>\nCross / Plus.";
+                    return "Simple Shape Icon: <color=#80ff80>Cross / Plus</color>";
                 case StrategicIconMode.Shapes_Star:
-                    return "Simple Shape Icon: <color=#80ff80>Star</color>\nStar.";
+                    return "Simple Shape Icon: <color=#80ff80>Star</color>";
                 case StrategicIconMode.Shapes_Chevron:
-                    return "Simple Shape Icon: <color=#80ff80>Chevron (Directional)</color>\nChevron.";
+                    return "Simple Shape Icon: <color=#80ff80>Chevron</color>";
                 default:
                     return "Strategic Map Icon Mode";
             }
