@@ -461,7 +461,7 @@ namespace StrategicMapIcons
             Color outlineColor,
             float outlineDepthZ)
         {
-            if (entry.CostTier < 2)
+            if (!SMI_ModSettings.ShowFleetCostTiers || entry.CostTier < 2)
             {
                 return;
             }

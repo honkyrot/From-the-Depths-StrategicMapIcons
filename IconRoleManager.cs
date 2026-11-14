@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using BrilliantSkies.Core;
 using BrilliantSkies.Core.Id;
+using BrilliantSkies.Core.Timing;
 using BrilliantSkies.Ftd.Fleets.Forces.Management.Extrapolation;
 using BrilliantSkies.Ftd.Rz.Transfer.SupplyGroups;
 using HarmonyLib;
 using NetInfrastructure;
+using Steamworks;
 
 namespace StrategicMapIcons
 {
@@ -45,22 +47,54 @@ namespace StrategicMapIcons
         private static INetworkIdentity? _identity;
         private static bool _isRegistered;
         private static readonly IconRoleSyncReceiver _receiver = new IconRoleSyncReceiver();
+        private static readonly Dictionary<int, StrategicIconMode> _localClientOverrides = new Dictionary<int, StrategicIconMode>();
+
+        /// <summary>
+        /// True when connected as a client to a host that also has StrategicMapIcons installed.
+        /// </summary>
+        public static bool HostHasMod { get; internal set; }
 
         public static void Init()
         {
             NetSys.Status.OnStatusChange.RegWithEvent(OnNetworkStatusChanged);
+            GameEvents.SceneChange.RegWithEvent(OnSceneChanged);
+        }
+
+        private static void OnSceneChanged()
+        {
+            if (!Net.IsClient && !Net.IsServer)
+            {
+                HostHasMod = false;
+                _localClientOverrides.Clear();
+            }
         }
 
         private static void OnNetworkStatusChanged(NetStatus status)
         {
             if (status == NetStatus.Server || status == NetStatus.Client)
             {
+                HostHasMod = false;
+                _localClientOverrides.Clear();
                 GetIdentity();
+                if (status == NetStatus.Server)
+                {
+                    SendHandshakeToClients();
+                }
             }
             else if (status == NetStatus.Disconnected)
             {
                 _identity = null;
                 _isRegistered = false;
+                HostHasMod = false;
+                _localClientOverrides.Clear();
+            }
+        }
+
+        public static void SendHandshakeToClients()
+        {
+            if (Net.IsServer)
+            {
+                GetIdentity()?.RPCMimic("Client_ModHandshake", RPCMimicMode.Others);
             }
         }
 
@@ -86,7 +120,17 @@ namespace StrategicMapIcons
         /// </summary>
         public static StrategicIconMode GetForceIconMode(Force? f)
         {
-            if (f?.CSI?.CSI == null || f.CSI.CSI.Length <= CsiSlot)
+            if (f == null)
+            {
+                return StrategicIconMode.Auto;
+            }
+            if (Net.IsClient && !HostHasMod)
+            {
+                return _localClientOverrides.TryGetValue(f.Id.Id, out StrategicIconMode localMode)
+                    ? localMode
+                    : StrategicIconMode.Auto;
+            }
+            if (f.CSI?.CSI == null || f.CSI.CSI.Length <= CsiSlot)
             {
                 return StrategicIconMode.Auto;
             }
@@ -101,10 +145,26 @@ namespace StrategicMapIcons
 
         /// <summary>
         /// sets icon mode
-        /// </summary
+        /// </summary>
         public static void SetForceIconMode(Force? f, StrategicIconMode mode)
         {
-            if (f?.CSI?.CSI == null || f.CSI.CSI.Length <= CsiSlot)
+            if (f == null)
+            {
+                return;
+            }
+            if (Net.IsClient && !HostHasMod)
+            {
+                if (mode == StrategicIconMode.Auto)
+                {
+                    _localClientOverrides.Remove(f.Id.Id);
+                }
+                else
+                {
+                    _localClientOverrides[f.Id.Id] = mode;
+                }
+                return;
+            }
+            if (f.CSI?.CSI == null || f.CSI.CSI.Length <= CsiSlot)
             {
                 return;
             }
@@ -331,6 +391,12 @@ namespace StrategicMapIcons
     public class IconRoleSyncReceiver
     {
         [NetworkMethod]
+        public void Client_ModHandshake()
+        {
+            IconRoleManager.HostHasMod = true;
+        }
+
+        [NetworkMethod]
         public void Server_SetForceIconMode(int forceId, int mode)
         {
             if (!Net.IsServer) return;
@@ -341,7 +407,25 @@ namespace StrategicMapIcons
         [NetworkMethod]
         public void Client_SetForceIconMode(int forceId, int mode)
         {
+            IconRoleManager.HostHasMod = true;
             IconRoleManager.ApplyForceIconModeLocal(forceId, mode);
+        }
+    }
+
+    /// <summary>
+    /// Announces mod presence to newly connected clients when hosting a multiplayer session.
+    /// </summary>
+    [HarmonyPatch(typeof(ServerMessages), nameof(ServerMessages.OnNetConnectionStatusChanged))]
+    public static class ServerMessagesHandshakePatch
+    {
+        [HarmonyPostfix]
+        public static void Postfix(SteamNetConnectionStatusChangedCallback_t callback)
+        {
+            if (Net.IsServer &&
+                callback.m_info.m_eState == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connected)
+            {
+                IconRoleManager.SendHandshakeToClients();
+            }
         }
     }
 

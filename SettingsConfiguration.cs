@@ -362,8 +362,8 @@ namespace StrategicMapIcons
 
             table.AddInterpretter(UIHelper.Bool(
                 _focus,
-                "Show Fleet Cost Tiers",
-                "Display a colored border around fleet icons indicating their cost tier (default: true).",
+                "Show Fleet Cost",
+                "Show fleet cost tier indicators (chevrons/star) and material cost below each fleet (default: true).",
                 I => I.ShowFleetCostTiers
             ), 1, 0);
 
